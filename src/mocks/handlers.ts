@@ -1,18 +1,29 @@
 import { rest } from 'msw';
 
+const ONE_MINUTE = 60 * 1000;
+
 export const handlers = [
 	rest.post('/login', (req, res, ctx) => {
-		sessionStorage.setItem('is-authenticated', 'true');
-
-		return res(ctx.status(200));
+		return res(
+			ctx.status(200),
+			ctx.json({
+				token: Date.now() + ONE_MINUTE * 2
+			})
+		);
 	}),
 
 	rest.get('/user', (req, res, ctx) => {
-		const isAuthenticated = sessionStorage.getItem('is-authenticated');
+		const expired = req.headers.get('authorization');
+
+		let isAuthenticated = false;
+
+		if (expired) {
+			isAuthenticated = Number(expired) > Date.now();
+		}
 
 		if (!isAuthenticated) {
 			return res(
-				ctx.status(403),
+				ctx.status(401),
 				ctx.json({
 					errorMessage: 'Not authorized'
 				})
@@ -22,7 +33,7 @@ export const handlers = [
 		return res(
 			ctx.status(200),
 			ctx.json({
-				username: 'V'
+				user_name: 'V'
 			})
 		);
 	})
