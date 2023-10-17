@@ -3,7 +3,7 @@ import { getToken, setToken } from '../../services/storage/token';
 import { refresh } from '../../services/api/auth';
 
 const apiClient = axios.create({
-	baseURL: 'http://localhost:5173',
+	baseURL: 'http://localhost:3000',
 	headers: {
 		Authorization: getToken() ?? ''
 	}
@@ -20,6 +20,21 @@ apiClient.interceptors.request.use(
 	}
 );
 
+let isRefreshing = false;
+let failedQueue: { resolve: (value: string) => void; reject: (value: any) => void }[] = [];
+
+const processQueue = (error: unknown, token: string = '') => {
+	failedQueue.forEach((promise) => {
+		if (error) {
+			promise.reject(error);
+		} else {
+			promise.resolve(token);
+		}
+	});
+
+	failedQueue = [];
+};
+
 apiClient.interceptors.response.use(
 	function (response) {
 		// Any status code that lie within the range of 2xx cause this function to trigger
@@ -32,7 +47,21 @@ apiClient.interceptors.response.use(
 
 		if (error instanceof AxiosError) {
 			if (error.response?.status === 401 && !originalConfig._retry) {
+				if (isRefreshing) {
+					return new Promise(function (resolve, reject) {
+						failedQueue.push({ resolve, reject });
+					})
+						.then((token) => {
+							originalConfig.headers['Authorization'] = token;
+							return apiClient(originalConfig);
+						})
+						.catch((err) => {
+							return Promise.reject(err);
+						});
+				}
+
 				originalConfig._retry = true;
+				isRefreshing = true;
 
 				try {
 					const { token } = await refresh();
@@ -40,13 +69,18 @@ apiClient.interceptors.response.use(
 
 					apiClient.defaults.headers.common['Authorization'] = token;
 
+					processQueue(null, token.toString());
 					return apiClient(originalConfig);
 				} catch (_error) {
 					if (_error instanceof AxiosError) {
 						if (_error.response && _error.response.data) {
+							processQueue(_error, '');
+
 							return Promise.reject(_error.response.data);
 						}
 					}
+				} finally {
+					isRefreshing = false;
 				}
 			}
 		}

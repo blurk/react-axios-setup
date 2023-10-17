@@ -1,4 +1,4 @@
-import { API_URL_LOGIN } from '../../common/constants';
+import { API_URL_LOGIN, API_URL_REFRESH_TOKEN } from '../../common/constants';
 import apiClient from '../../libs/axios';
 
 export const login = async () => {
@@ -7,6 +7,6 @@ export const login = async () => {
 };
 
 export const refresh = async () => {
-	const res = await apiClient.post<{ token: number }>(API_URL_LOGIN);
+	const res = await apiClient.post<{ token: number }>(API_URL_REFRESH_TOKEN);
 	return res.data;
 };
