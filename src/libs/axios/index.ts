@@ -21,7 +21,7 @@ apiClient.interceptors.request.use(
 );
 
 let isRefreshing = false;
-let failedQueue: { resolve: (value: string) => void; reject: (value: any) => void }[] = [];
+let failedQueue: { resolve: (value: string) => void; reject: (value: unknown) => void }[] = [];
 
 const processQueue = (error: unknown, token: string = '') => {
 	failedQueue.forEach((promise) => {
@@ -36,12 +36,12 @@ const processQueue = (error: unknown, token: string = '') => {
 };
 
 apiClient.interceptors.response.use(
-	function (response) {
+	function onFullfilled(response) {
 		// Any status code that lie within the range of 2xx cause this function to trigger
 
 		return response;
 	},
-	async function (error) {
+	async function onRejected(error) {
 		// Any status codes that falls outside the range of 2xx cause this function to trigger
 		const originalConfig = error.config;
 
@@ -51,11 +51,11 @@ apiClient.interceptors.response.use(
 					return new Promise(function (resolve, reject) {
 						failedQueue.push({ resolve, reject });
 					})
-						.then((token) => {
+						.then(function failedRequestResolve(token) {
 							originalConfig.headers['Authorization'] = token;
 							return apiClient(originalConfig);
 						})
-						.catch((err) => {
+						.catch(function failedRequestReject(err) {
 							return Promise.reject(err);
 						});
 				}
