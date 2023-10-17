@@ -1,27 +1,22 @@
-# React + TypeScript + Vite
+# Axios refresh token with multiple requests
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## React + TS + Vite
 
-Currently, two official plugins are available:
+- React: 18.2.0
+- TS: 5.0.2
+- Vite: 4.4.5
+- axios: 1.5.1
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Prequesites
 
-## Expanding the ESLint configuration
+- Node: 18.18.0
+- pnpm: 8.8.0
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Intsall and run
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
+```
+ pnpm install
+ pnpm run dev
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+Open [Port 3000 of localhost](https://localhost:3000)
